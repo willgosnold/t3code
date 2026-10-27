@@ -1,5 +1,5 @@
 100644 21ba3b7a6566a7a1583f49ab92ba021c154bb3b9 .agents/skills/contribution-triage/SKILL.md
-100644 47f5384d48a341e08209b28ca485707c68c3c8e4 .agents/skills/patchbook-update/SKILL.md
+100644 b04395cadb69975e6194356f3f7d07885be84554 .agents/skills/patchbook-update/SKILL.md
 100644 06fe9867b15ae0e36b5dc8cc44a0c4d39d9cbbba .agents/skills/test-t3-app/SKILL.md
 100644 2f161a27ee0bff206e1471f093c16950f5a85adf .agents/skills/test-t3-app/agents/openai.yaml
 100644 9a1225ce3d91057a8a6ca91fcd633b2ae632d7e5 .agents/skills/test-t3-app/references/sqlite-fixtures.md

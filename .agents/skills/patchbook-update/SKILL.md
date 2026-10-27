@@ -34,11 +34,16 @@ End every run with one of these as its last line, so a scheduler can read the ou
 
 First, upgrade patchbook the way it was installed, if you can tell: `npm install -g @patchbook/cli@latest` for an npm install, or rerun the install script for a script install. If you can't tell how it was installed, or the upgrade fails, carry on with the installed version. `patchbook --version` prints it.
 
-Then run `patchbook check`.
+This fork follows upstream t3code's stable releases (plain `vX.Y.Z` tags), not its `main` branch, so don't use `patchbook check`, which compares against `main`. Find the newest stable tag and the commit it points at, and note both values:
 
-- Exit 0: no upstream has moved. Archive the thread with `t3_thread_organize` (`archive`) if you have it. End with `patchbook-update: up to date`.
-- Exit 10: continue. The JSON says which upstreams moved and which of their files changed.
-- Anything else: report the error, leave the thread active, and end with `patchbook-update: failed: <the error>`.
+- `STABLE_TAG=$(git ls-remote --tags --refs https://github.com/pingdotgg/t3code.git 'v*' | sed -n 's#.*refs/tags/\(v[0-9]*\.[0-9]*\.[0-9]*\)$#\1#p' | sort -V | tail -n 1)`
+- `STABLE_COMMIT=$(git ls-remote https://github.com/pingdotgg/t3code.git "refs/tags/$STABLE_TAG" "refs/tags/$STABLE_TAG^{}" | tail -n 1 | cut -f1)`
+
+Compare `STABLE_COMMIT` with the t3code `commit` in `.patchbook/upstream.lock`.
+
+- Equal: no new stable release. Archive the thread with `t3_thread_organize` (`archive`) if you have it. End with `patchbook-update: up to date`.
+- Different: continue.
+- Either command fails or prints nothing: report the error, leave the thread active, and end with `patchbook-update: failed: <the error>`.
 
 ## 2. Sync on the run's own branch
 
@@ -48,8 +53,8 @@ Every run makes its own worktree and branch here, in T3 too. Never work in, or c
    - `MAIN_BRANCH=$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##')`
    - `MAIN_CHECKOUT=$(git worktree list --porcelain | sed -n 's/^worktree //p' | head -n 1)`
 2. Make the run's worktree outside the repo: `git fetch origin && git worktree add -b "$RUN_BR" "$RUN_WT" origin/$MAIN_BRANCH`, with `RUN_BR=patchbook/upstream-<time>` and `RUN_WT="${XDG_CACHE_HOME:-$HOME/.cache}/patchbook/worktrees/<repo>-<time>"`, `<time>` as `date -u +%Y%m%d-%H%M%S` prints it and `<repo>` the main checkout's folder name. Note both values. Run every later command there, starting each with `cd "$RUN_WT" &&`, since some agents, Claude Code among them, move the shell back to where the run started after each command. Edit its files by their full path.
-3. Run `patchbook sync`. It moves every upstream that moved, and prints `<name>: pinned <short sha>` for each one. If it exits non-zero, quote its message and ask (step 6), before any commit. If it exits 0 and prints no `pinned` line, every upstream that moved has moved back to its pin since step 1. Say that in one line, Clean up (below), archive the thread as step 1 does, and end with `patchbook-update: up to date`, with no commit. Otherwise commit everything it changed except `.patchbook/last-sync.json` (`git add -A -- . ':!.patchbook/last-sync.json'`, then `PATCHBOOK_HOOK=0 git commit`) as "Sync upstream <name> to <short sha>", naming each upstream.
-4. Read `.patchbook/last-sync.json` (per upstream: what changed and what merged on its own) and the `problems` in `patchbook status --json` (what broke). Ignore its `lastSync`, which can hold older runs' reports. Here and in steps 3, 5 and 6, read only the reports of the upstreams `patchbook sync` printed `pinned` for. An upstream can move after step 1, so this list can be longer than `patchbook check`'s.
+3. Run `patchbook sync t3code "$STABLE_TAG"`, never a bare `patchbook sync`, which would pin upstream `main`. It prints `t3code: pinned <short sha>`. If it exits non-zero, quote its message and ask (step 6), before any commit. If it exits 0 and prints no `pinned` line, the pin already matches the tag. Say that in one line, Clean up (below), archive the thread as step 1 does, and end with `patchbook-update: up to date`, with no commit. Otherwise commit everything it changed except `.patchbook/last-sync.json` (`git add -A -- . ':!.patchbook/last-sync.json'`, then `PATCHBOOK_HOOK=0 git commit`) as "Sync upstream t3code to <short sha> (<STABLE_TAG>)".
+4. Read `.patchbook/last-sync.json` (per upstream: what changed and what merged on its own) and the `problems` in `patchbook status --json` (what broke). Ignore its `lastSync`, which can hold older runs' reports. Here and in steps 3, 5 and 6, read only the reports of the upstreams `patchbook sync` printed `pinned` for.
 
 ## 3. Repair
 
