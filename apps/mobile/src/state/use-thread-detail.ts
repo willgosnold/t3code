@@ -92,15 +92,13 @@ export function useSelectedThreadVisibleTurnItems(): OrchestrationV2ThreadProjec
 const EMPTY_WORKTREE_PATH_ATOM = Atom.make<string | null>(null);
 const EMPTY_PENDING_REQUESTS_ATOM = Atom.make<PendingThreadRequests | null>(null);
 
-export function useThreadWorktreePath(ref: ScopedThreadRef | null) {
-  return useAtomValue(
-    ref === null ? EMPTY_WORKTREE_PATH_ATOM : environmentThreadDetails.worktreePathAtom(ref),
-  );
-}
-
 export function useSelectedThreadWorktreePath() {
   const { selectedThreadDetailRef } = useThreadSelection();
-  return useThreadWorktreePath(selectedThreadDetailRef);
+  return useAtomValue(
+    selectedThreadDetailRef === null
+      ? EMPTY_WORKTREE_PATH_ATOM
+      : environmentThreadDetails.worktreePathAtom(selectedThreadDetailRef),
+  );
 }
 
 export function useSelectedThreadPendingRequests() {

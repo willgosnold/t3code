@@ -1,5 +1,4 @@
 import * as Dialog from "../../components/ui/Dialog";
-import { useRememberThreadProject } from "./useRememberThreadProject";
 import { useOpenPullRequest } from "../../native/useOpenPullRequest";
 import { makeTurnCommandMetadata } from "../../lib/commandMetadata";
 import { buildProjectThreadStartTurnInput } from "../../lib/projectThreadStartTurn";
@@ -43,8 +42,6 @@ import { vcsEnvironment } from "../../state/vcs";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { LoadingScreen } from "../../components/LoadingScreen";
 import { scopedThreadKey } from "../../lib/scopedEntities";
-import { scopeThreadRef } from "@t3tools/client-runtime/environment";
-import { useThreadShell } from "../../state/entities";
 import { NATIVE_LIQUID_GLASS_SUPPORTED } from "../../native/native-glass";
 import { connectionTone } from "../connection/connectionTone";
 import {
@@ -84,6 +81,7 @@ import { resolveLatestMergeBackRun } from "@t3tools/client-runtime/state/thread-
 import { threadEnvironment, useThreadFamily } from "../../state/threads";
 import { EMPTY_ENVIRONMENT_THREAD_STATE } from "@t3tools/client-runtime/state/threads";
 import { useProjects } from "../../state/entities";
+import { newTaskDestination } from "./new-task-project-selection";
 import { projectThreadContentPresentation } from "./threadContentPresentation";
 import { useAppearancePreferences } from "../settings/appearance/AppearancePreferencesProvider";
 import {
@@ -97,6 +95,7 @@ import {
   type ThreadInspectorMode,
 } from "./thread-inspector-content-stack";
 import { threadRouteIsHydrating } from "./thread-route-hydration";
+import { useThreadPromptLink } from "../prompt-links/useThreadPromptLink";
 import { ThreadHeader } from "./ThreadHeader";
 import {
   useAndroidWorkspaceBack,
@@ -199,18 +198,14 @@ function ThreadUnavailableScreen(props: {
 function UnavailableThreadDraftRedirect(props: { readonly environmentId: EnvironmentId }) {
   const navigation = useNavigation();
   const projects = useProjects();
+  const { layout } = useAdaptiveWorkspaceLayout();
   const openDraft = useEffectEvent(() => {
     const project = projects.find((candidate) => candidate.environmentId === props.environmentId);
     navigation.dispatch(
-      StackActions.replace("Thread", {
-        draft: project
-          ? {
-              requestId: uuidv4(),
-              environmentId: String(project.environmentId),
-              projectId: String(project.id),
-            }
-          : { requestId: uuidv4() },
-      }),
+      StackActions.replace(
+        "Thread",
+        newTaskDestination(layout.usesSplitView, projects, project, uuidv4()),
+      ),
     );
   });
   // oxlint-disable-next-line t3code/react-effect-budget -- replaces this route in the navigator
@@ -266,6 +261,7 @@ function LiveThreadRouteController(props: ThreadRouteScreenProps) {
       ? null
       : scopedThreadKey(selectedThread.environmentId, selectedThread.id);
   const selectedThreadDetailState = useSelectedThreadDetailState();
+  useThreadPromptLink(params, routeThreadKey);
   const withInspectorHeader = (content: ReactNode) => (
     <>
       {props.inspectorPresentation ? (
@@ -343,7 +339,6 @@ function ThreadRouteContent(
     selectedThreadProject,
     selectedEnvironmentConnection,
   } = useThreadSelection();
-  useRememberThreadProject(selectedThreadProject);
   const canOperateThread = useEnvironmentScope(
     selectedThread?.environmentId ?? null,
     AuthOrchestrationOperateScope,
@@ -488,22 +483,9 @@ function ThreadRouteContent(
     : null;
 
   const usesNativeHeaderGlass = NATIVE_LIQUID_GLASS_SUPPORTED;
-  const delegatedFrom = selectedThread?.delegatedFrom ?? null;
-  const delegatedFromRef =
-    delegatedFrom === null
-      ? null
-      : scopeThreadRef(delegatedFrom.environmentId, delegatedFrom.threadId);
-  // The title it had at delegation, until this client sees the parent itself.
-  const delegatedFromThread = useThreadShell(delegatedFromRef);
   const headerSubtitle = [
     selectedThreadProject?.title ?? null,
     selectedEnvironmentConnection?.environmentLabel ?? null,
-    // A linked environment's delegated task names its parent; other linked work its origin.
-    delegatedFrom !== null
-      ? `Subagent of ${delegatedFromThread?.title ?? delegatedFrom.title}`
-      : selectedThread?.linkOrigin
-        ? `From ${selectedThread.linkOrigin.label}`
-        : null,
   ]
     .filter(Boolean)
     .join(" · ");

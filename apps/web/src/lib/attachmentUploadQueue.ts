@@ -57,8 +57,6 @@ interface UploadJob {
   stopWatchingConnection: () => void;
 }
 
-type DraftFileOwner = Pick<UploadJob, "image" | "environmentId" | "draftTarget">;
-
 const jobsByImageId = new Map<string, UploadJob>();
 const queue: UploadJob[] = [];
 const activeUploadsByEnvironment = new Map<EnvironmentId, number>();
@@ -84,7 +82,7 @@ export function readAttachmentUpload(imageId: string): AttachmentUploadState | u
   return useAttachmentUploadStore.getState().uploadsByImageId[imageId];
 }
 
-function resolveCurrentFileDraftTarget(job: DraftFileOwner): ComposerThreadTarget | undefined {
+function resolveCurrentFileDraftTarget(job: UploadJob): ComposerThreadTarget | undefined {
   if (job.draftTarget === undefined || job.image.type !== "file") {
     return undefined;
   }
@@ -112,7 +110,7 @@ function resolveCurrentFileDraftTarget(job: DraftFileOwner): ComposerThreadTarge
 }
 
 /** Persist background completions even when no composer is mounted. */
-function stampDraftFileUpload(job: DraftFileOwner, attachmentId: string): void {
+function stampDraftFileUpload(job: UploadJob, attachmentId: string): void {
   const draftTarget = resolveCurrentFileDraftTarget(job);
   if (draftTarget === undefined) {
     return;
@@ -404,9 +402,6 @@ export function startAttachmentUpload(input: {
 
   const existing = readAttachmentUpload(input.image.id);
   if (existing?.status === "ready" && existing.environmentId === input.environmentId) {
-    // A file restored into a draft after its upload finished (stash, failed send) missed the
-    // completion stamp; stamping here keeps it from re-uploading after a reload.
-    stampDraftFileUpload(input, existing.attachmentId);
     return;
   }
   if (existing?.status === "failed" && existing.environmentId === input.environmentId) {

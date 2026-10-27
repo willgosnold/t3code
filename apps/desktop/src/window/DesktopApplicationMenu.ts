@@ -200,10 +200,7 @@ export const make = Effect.gen(function* () {
                 },
                 { type: "separator" as const },
               ]),
-          // Cmd/Ctrl+W belongs to the renderer's tab close; it must never close the window.
-          environment.platform === "darwin"
-            ? { label: "Close Window", click: (_item, window) => window?.close() }
-            : { role: "quit" },
+          { role: environment.platform === "darwin" ? "close" : "quit" },
         ],
       },
       {
@@ -292,17 +289,7 @@ export const make = Effect.gen(function* () {
           { role: "togglefullscreen" },
         ],
       },
-      {
-        // Electron's default Window submenu adds a Ctrl+W close role off macOS.
-        role: "windowMenu",
-        submenu: [
-          { role: "minimize" },
-          { role: "zoom" },
-          ...(environment.platform === "darwin"
-            ? [{ type: "separator" as const }, { role: "front" as const }]
-            : []),
-        ],
-      },
+      { role: "windowMenu" },
       {
         role: "help",
         submenu: [

@@ -38,8 +38,6 @@ const SETTINGS_SEARCH_TERMS = {
     "organization",
     "sidebar",
     "working section",
-    "new threads",
-    "last project",
   ],
   SettingsThreads: [
     "new threads",
@@ -83,7 +81,7 @@ const SETTINGS_SEARCH_TERMS = {
     "submodules",
     "start from remote",
   ],
-  SettingsLabs: ["legacy", "plan mode", "beta", "linked environments", "link machine"],
+  SettingsLabs: ["legacy", "plan mode", "beta"],
   SettingsEnvironmentMaintenance: ["updates", "provider updates", "restart", "manage environments"],
   SettingsAbout: [
     "version",

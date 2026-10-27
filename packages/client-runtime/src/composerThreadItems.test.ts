@@ -1,11 +1,7 @@
 import { EnvironmentId, ThreadId } from "@t3tools/contracts";
-import { describe, expect, it } from "vite-plus/test";
+import { expect, it } from "vite-plus/test";
 
-import {
-  matchComposerEnvironmentItems,
-  matchComposerThreadItems,
-  type ComposerThreadCandidate,
-} from "./composerThreadItems.ts";
+import { matchComposerThreadItems, type ComposerThreadCandidate } from "./composerThreadItems.ts";
 
 const environmentId = EnvironmentId.make("env-composer");
 
@@ -51,45 +47,4 @@ it("ranks thread mentions like the palette and leaves out subagent threads", () 
     now: Date.parse("2026-10-23T00:00:00.000Z"),
   });
   expect(items.map((item) => item.thread.threadId)).toEqual(["word", "newer-mid-word"]);
-});
-
-describe("matchComposerEnvironmentItems", () => {
-  const environments = [
-    { environmentId: EnvironmentId.make("env-here"), label: "Laptop", machine: "laptop" },
-    { environmentId: EnvironmentId.make("env-vps"), label: "Hetzner VPS", machine: "cloud" },
-    { environmentId: EnvironmentId.make("env-mini"), label: "Mac mini", machine: "mac-mini" },
-  ] as const;
-
-  it("offers the other machines matching the query, never the composer's own", () => {
-    expect(
-      matchComposerEnvironmentItems({
-        environments,
-        environmentId: EnvironmentId.make("env-here"),
-        query: "  vps ",
-      }),
-    ).toEqual([
-      {
-        id: "environment:env-vps",
-        type: "environment",
-        environmentId: "env-vps",
-        machine: "cloud",
-        label: "Hetzner VPS",
-        description: "Machine",
-      },
-    ]);
-    expect(
-      matchComposerEnvironmentItems({
-        environments,
-        environmentId: EnvironmentId.make("env-here"),
-        query: "lap",
-      }),
-    ).toEqual([]);
-    expect(
-      matchComposerEnvironmentItems({
-        environments,
-        environmentId: EnvironmentId.make("env-here"),
-        query: "",
-      }),
-    ).toEqual([]);
-  });
 });

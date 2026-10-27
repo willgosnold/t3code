@@ -1,5 +1,4 @@
 import { useAtomValue } from "@effect/atom-react";
-import type { EnvironmentIdentificationMode } from "@t3tools/contracts";
 import { useId } from "react";
 
 import { APP_STAGE_LABEL } from "../branding";
@@ -13,11 +12,9 @@ const STAGE_BACKDROP_VIEW_BOX = "0 0 8192 96";
 
 export function resolveSidebarStageBackdropVariant(
   stageLabel: string,
-  mode: EnvironmentIdentificationMode = "artwork",
+  enabled = true,
 ): SidebarStageBackdropVariant | null {
-  if (mode === "nightly-artwork") return "nightly";
-  if (mode === "dev-artwork") return "dev";
-  if (mode !== "artwork") return null;
+  if (!enabled) return null;
   const normalized = stageLabel.trim().toLowerCase();
   if (normalized === "nightly") return "nightly";
   if (normalized === "dev") return "dev";
@@ -43,10 +40,8 @@ export function useEnvironmentStageLabel(): string {
   });
 }
 
-export function useSidebarStageBackdropVariant(
-  mode: EnvironmentIdentificationMode,
-): SidebarStageBackdropVariant | null {
-  return resolveSidebarStageBackdropVariant(useEnvironmentStageLabel(), mode);
+export function useSidebarStageBackdropVariant(enabled = true): SidebarStageBackdropVariant | null {
+  return resolveSidebarStageBackdropVariant(useEnvironmentStageLabel(), enabled);
 }
 
 export function SidebarStageBackdrop({ variant }: { variant: SidebarStageBackdropVariant }) {

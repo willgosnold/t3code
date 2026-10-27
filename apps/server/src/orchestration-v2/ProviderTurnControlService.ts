@@ -127,11 +127,7 @@ export const layer: Layer.Layer<
       const interruptProviderThread = targetsRecordedSession
         ? providerThread
         : { ...providerThread, providerSessionId: input.providerSessionId };
-      const continuingRun =
-        input.operation === "steer" &&
-        context.run?.status === "running" &&
-        context.run.activeAttemptId === providerTurn.runAttemptId;
-      if (providerTurn.status !== "running" && !continuingRun) {
+      if (providerTurn.status !== "running") {
         if (input.operation === "steer") {
           return yield* new ProviderTurnControlError({
             threadId: input.threadId,

@@ -47,7 +47,7 @@ import VirtualTablePreview from "./VirtualTablePreview";
 import { OfficeFilePreview } from "./OfficeFilePreview";
 import { MermaidFilePreview } from "./MermaidFilePreview";
 import JSZip from "jszip";
-import { boundedZip } from "@t3tools/client-runtime/zip/bounded-zip";
+import { boundedZip } from "./boundedZip";
 import BinaryViewer from "./BinaryViewer";
 import { decodeImagePreview } from "./decodeImagePreview";
 import type { BinaryWorkerResult } from "./binaryPreviewProtocol";

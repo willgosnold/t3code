@@ -10,7 +10,14 @@ import type { AppBarMenuItem } from "../../components/ui/AppBar.types";
 import type { ReviewSectionItem } from "./reviewModel";
 import { useReviewHeaderPresentation } from "./useReviewHeaderPresentation";
 import { Screen, ScreenStack, ScreenStackHeaderConfig } from "react-native-screens";
-import { type Ref, type ReactElement, useImperativeHandle, useRef, useState } from "react";
+import {
+  type Ref,
+  type ReactElement,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import {
   FlatList,
   Platform,
@@ -425,7 +432,7 @@ type ReviewSheetProps = StaticScreenProps<{
 export function ReviewSheet(props: ReviewSheetProps) {
   const { nativeReviewDiffStyle } = useAppearanceCodeSurface();
   useAdaptiveWorkspacePaneRole("inspector");
-  const { panes } = useAdaptiveWorkspaceLayout();
+  const { panes, showAuxiliaryPane } = useAdaptiveWorkspaceLayout();
   const navigation = useNavigation();
   const selectDetail = useSelectWorkspaceDetail();
   const insets = useSafeAreaInsets();
@@ -444,6 +451,10 @@ export function ReviewSheet(props: ReviewSheetProps) {
   const bottomContentInset =
     Platform.OS === "ios" ? safeArea.bottom + 8 : Math.max(insets.bottom, 18) + 18;
 
+  useEffect(() => {
+    showAuxiliaryPane("inspector");
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- Opening review for another thread reselects its inspector pane.
+  }, [environmentId, showAuxiliaryPane, threadId]);
   const {
     error,
     reviewSections,

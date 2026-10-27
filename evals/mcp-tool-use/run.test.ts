@@ -17,7 +17,7 @@ import {
   shellRequest,
   t3SystemAppend,
 } from "./run.ts";
-import { taskPrompt } from "../../apps/server/src/mcp/delegatedTaskModes.ts";
+import { taskPrompt } from "../../apps/server/src/mcp/OrchestratorMcpService.ts";
 
 it("grades Codex shell and subagent calls with the shared rules", () => {
   const calls = [

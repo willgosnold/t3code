@@ -26,17 +26,14 @@ type SubagentRowSubagent = Pick<
   | "status"
   | "progress"
   | "result"
-  | "remoteChild"
 >;
 
 export function SubagentRow(props: {
   readonly environmentId: EnvironmentId;
   readonly subagent: SubagentRowSubagent;
   readonly elapsed: ReactNode;
-  /** The task runs in a linked environment this app is connected to. */
-  readonly canOpenRemote?: boolean;
 }) {
-  const presentation = resolveSubagentRowPresentation(props.subagent, props.canOpenRemote);
+  const presentation = resolveSubagentRowPresentation(props.subagent);
   const detail = subagentCardDetail(presentation.detail);
   return (
     <View className="flex-row gap-3">
@@ -67,11 +64,6 @@ export function SubagentRow(props: {
             >
               {presentation.statusLabel}
             </Text>
-            {presentation.runsOn !== null ? (
-              <Text numberOfLines={1} className="shrink text-xs text-foreground-muted">
-                on {presentation.runsOn}
-              </Text>
-            ) : null}
           </View>
           {props.elapsed}
           {presentation.canOpenThread ? (
@@ -100,8 +92,7 @@ function SubagentMetadata(props: {
   readonly subagent: SubagentRowSubagent;
 }) {
   const { environmentId, subagent } = props;
-  // A task in a linked environment runs a provider instance of that environment.
-  const config = useEnvironmentServerConfig(subagent.remoteChild?.environmentId ?? environmentId);
+  const config = useEnvironmentServerConfig(environmentId);
   const provider = config?.providers.find(
     (candidate) => candidate.instanceId === subagent.providerInstanceId,
   );

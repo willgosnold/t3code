@@ -152,6 +152,7 @@ export function PreviewView({
     Boolean(onSendAnnotation);
   const activeRecordingTabIds = useActiveBrowserRecordingTabIds();
   const pickActiveRef = useRef<{ cancelled: boolean } | null>(null);
+  const isMountedRef = useRef(true);
   const previewState = useThreadPreviewState(threadRef);
   const recentHistoryEntries = useThreadRecentHistory(
     threadRef,
@@ -171,6 +172,13 @@ export function PreviewView({
   const adjust = useAtomCommand(previewEnvironment.adjust, "preview appearance or zoom");
 
   usePreviewSession(threadRef);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const tabId = requestedTabId ?? previewState.activeTabId;
   const runtimeTabId = tabId
@@ -718,7 +726,7 @@ export function PreviewView({
       const isCurrentPick = pickActiveRef.current === pickRequest;
       if (isCurrentPick) {
         pickActiveRef.current = null;
-        setPickActive(false);
+        if (isMountedRef.current) setPickActive(false);
       }
       if (
         (isCurrentPick || submitted) &&
@@ -744,7 +752,7 @@ export function PreviewView({
       // The accepted pick must survive further clicks, tab changes, and unmount; stop cancellation here.
       if (pickActiveRef.current === pickRequest) {
         pickActiveRef.current = null;
-        setPickActive(false);
+        if (isMountedRef.current) setPickActive(false);
         submitted = true;
       }
       const { annotation: picked, submission, screenshotFailed = false } = result;
@@ -803,7 +811,7 @@ export function PreviewView({
       if (previewBridge && runtimeTabId) {
         void previewBridge.cancelPickElement(runtimeTabId).catch(() => undefined);
       }
-      setPickActive(false);
+      if (isMountedRef.current) setPickActive(false);
     };
   }, [runtimeTabId]);
 

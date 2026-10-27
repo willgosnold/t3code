@@ -118,7 +118,7 @@ const networkPathChanges = Stream.callback<"network-changed">((queue) =>
 const layerWakeups = Wakeups.layer({
   changes: Stream.mergeAll(
     [
-      Stream.callback<"application-active-probe" | "application-active-long">((queue) =>
+      Stream.callback<"application-active-probe" | "application-active-reconnect">((queue) =>
         Effect.acquireRelease(
           Effect.sync(() => {
             let backgroundedAtMs = AppState.currentState === "background" ? Date.now() : null;

@@ -292,40 +292,23 @@ function useBrowsePathInput(environment: EnvironmentOption | null, pinnedDirecto
   const environmentId = environment?.environmentId ?? null;
   const environmentBaseDirectory = environment?.baseDirectory ?? null;
   const clonePathCaseSensitive = !isWindowsPlatform(environment?.platform ?? "");
-  const seedPath = getCloneDestinationPath(
-    getAddProjectInitialQuery(environmentBaseDirectory),
-    pinnedDirectoryName,
+  const [pathInput, commitPathInput] = useState(() =>
+    getCloneDestinationPath(
+      getAddProjectInitialQuery(environmentBaseDirectory),
+      pinnedDirectoryName,
+    ),
   );
-  // Each host keeps the path last typed or browsed for it, and shows its own default until then,
-  // so switching hosts and back loses nothing. With no host selected (one dropping out briefly),
-  // the field keeps the last path typed anywhere.
-  const [paths, setPaths] = useState<{
-    readonly byHost: ReadonlyMap<EnvironmentId, string>;
-    readonly last: string;
-  }>(() => ({ byHost: new Map(), last: seedPath }));
-  const pathInput =
-    environmentId === null ? paths.last : (paths.byHost.get(environmentId) ?? seedPath);
-  const commitPathInput = (path: string) =>
-    setPaths((current) => {
-      const byHost = new Map(current.byHost);
-      if (environmentId !== null) {
-        byHost.set(environmentId, path);
-      }
-      return { byHost, last: path };
-    });
+  const previousEnvironmentIdRef = useRef(environmentId);
   const environmentRuntime = useRemoteEnvironmentRuntime(environmentId);
   const loadBrowsePath = useAtomQueryRunner(filesystemEnvironment.browse, {
     reportFailure: false,
     reportDefect: false,
   });
   const [browseNavigation] = useState(createBrowseNavigationCoordinator);
-  const [navigatingEnvironmentId, setNavigatingEnvironmentId] = useState<
-    EnvironmentId | null | undefined
-  >(undefined);
-  const isBrowseNavigating = navigatingEnvironmentId === environmentId;
+  const [isBrowseNavigating, setIsBrowseNavigating] = useState(false);
   const setPathInput = (path: string) => {
     browseNavigation.invalidate();
-    setNavigatingEnvironmentId(undefined);
+    setIsBrowseNavigating(false);
     commitPathInput(path);
   };
   const navigateToBrowsePath = async (input: {
@@ -344,7 +327,7 @@ function useBrowsePathInput(environment: EnvironmentOption | null, pinnedDirecto
             caseSensitive: clonePathCaseSensitive,
           })
         : getCloneDestinationPath(selectedDirectoryPath, pinnedDirectoryName);
-    setNavigatingEnvironmentId(environmentId);
+    setIsBrowseNavigating(true);
     const committed = await browseNavigation.run(
       async () => {
         if (
@@ -361,10 +344,22 @@ function useBrowsePathInput(environment: EnvironmentOption | null, pinnedDirecto
       () => commitPathInput(nextPathInput),
     );
     if (committed) {
-      setNavigatingEnvironmentId(undefined);
+      setIsBrowseNavigating(false);
     }
     return committed;
   };
+
+  useEffect(() => {
+    if (environmentId !== null && environmentId !== previousEnvironmentIdRef.current) {
+      previousEnvironmentIdRef.current = environmentId;
+      setPathInput(
+        getCloneDestinationPath(
+          getAddProjectInitialQuery(environmentBaseDirectory),
+          pinnedDirectoryName,
+        ),
+      );
+    }
+  }, [environmentBaseDirectory, environmentId, pinnedDirectoryName, setPathInput]);
 
   useEffect(
     () => () => {

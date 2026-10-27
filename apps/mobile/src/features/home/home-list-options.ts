@@ -1,8 +1,17 @@
 import type { EnvironmentId, SidebarProjectGroupingMode } from "@t3tools/contracts";
 import { DEFAULT_SIDEBAR_PROJECT_SORT_ORDER } from "@t3tools/contracts";
-import { RegistryContext, useAtomSet, useAtomValue } from "@effect/atom-react";
-import { Atom } from "effect/reactivity";
-import { createContext, createElement, useContext, useState, type PropsWithChildren } from "react";
+import { useAtomSet } from "@effect/atom-react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type PropsWithChildren,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 import type { ThreadListFilters } from "../../persistence/mobile-preferences";
 import { updateMobilePreferencesAtom } from "../../state/preferences";
@@ -31,7 +40,7 @@ function defaultHomeListOptions(filters?: ThreadListFilters): HomeListOptions {
 
 interface HomeListOptionsContextValue {
   readonly options: HomeListOptions;
-  readonly updateOptions: (patch: Partial<HomeListOptions>) => void;
+  readonly setOptions: Dispatch<SetStateAction<HomeListOptions>>;
   readonly projectGroupingMode: SidebarProjectGroupingMode;
 }
 
@@ -45,29 +54,20 @@ export function HomeListOptionsProvider({
   readonly projectGroupingMode: SidebarProjectGroupingMode;
   readonly savedFilters?: ThreadListFilters | undefined;
 }>) {
-  const registry = useContext(RegistryContext);
-  const [optionsAtom] = useState(() => Atom.make(defaultHomeListOptions(savedFilters)));
-  const options = useAtomValue(optionsAtom);
+  const [options, setOptions] = useState(() => defaultHomeListOptions(savedFilters));
   const savePreferences = useAtomSet(updateMobilePreferencesAtom);
-  // Only the scope persists; the sort order is per session. Updates read the
-  // registry, so several in one event each build on the last and save it.
-  const updateOptions = (patch: Partial<HomeListOptions>) => {
-    const current = registry.get(optionsAtom);
-    const next = { ...current, ...patch };
-    registry.set(optionsAtom, next);
+  const saved = useRef(savedFilters);
+  const { selectedEnvironmentId: environmentId, selectedProjectKey: projectKey } = options;
+  useEffect(() => {
     if (
-      next.selectedEnvironmentId !== current.selectedEnvironmentId ||
-      next.selectedProjectKey !== current.selectedProjectKey
-    ) {
-      savePreferences({
-        threadListFilters: {
-          environmentId: next.selectedEnvironmentId,
-          projectKey: next.selectedProjectKey,
-        },
-      });
-    }
-  };
-  const value = { options, updateOptions, projectGroupingMode };
+      (saved.current?.environmentId ?? null) === environmentId &&
+      (saved.current?.projectKey ?? null) === projectKey
+    )
+      return;
+    saved.current = { environmentId, projectKey };
+    savePreferences({ threadListFilters: saved.current });
+  }, [environmentId, projectKey, savePreferences]);
+  const value = { options, setOptions, projectGroupingMode };
   return createElement(HomeListOptionsContext, { value }, children);
 }
 
@@ -75,9 +75,7 @@ export function useHomeListOptions(availableEnvironmentIds: ReadonlySet<Environm
   const shared = useContext(HomeListOptionsContext);
   const [localOptions, setLocalOptions] = useState<HomeListOptions>(defaultHomeListOptions);
   const options = shared?.options ?? localOptions;
-  const updateOptions =
-    shared?.updateOptions ??
-    ((patch: Partial<HomeListOptions>) => setLocalOptions((current) => ({ ...current, ...patch })));
+  const setOptions = shared?.setOptions ?? setLocalOptions;
   const selectedEnvironmentId =
     options.selectedEnvironmentId !== null &&
     availableEnvironmentIds.has(options.selectedEnvironmentId)
@@ -93,13 +91,13 @@ export function useHomeListOptions(availableEnvironmentIds: ReadonlySet<Environm
   };
 
   const setSelectedEnvironmentId = (value: EnvironmentId | null) => {
-    updateOptions({ selectedEnvironmentId: value });
+    setOptions((current) => ({ ...current, selectedEnvironmentId: value }));
   };
   const setSelectedProjectKey = (value: string | null) => {
-    updateOptions({ selectedProjectKey: value });
+    setOptions((current) => ({ ...current, selectedProjectKey: value }));
   };
   const setProjectSortOrder = (value: HomeProjectSortOrder) => {
-    updateOptions({ projectSortOrder: value });
+    setOptions((current) => ({ ...current, projectSortOrder: value }));
   };
   return {
     options: resolvedOptions,

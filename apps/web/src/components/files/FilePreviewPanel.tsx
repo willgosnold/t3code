@@ -117,7 +117,7 @@ import {
   shouldShowFileExplorer,
   workspaceAssetResource,
 } from "./filePreviewMode";
-import { changeFileSaveSession, useFileSaveSession } from "./fileSaveSessions";
+import { useFileSaveCoordinator } from "./useFileSaveCoordinator";
 import { revisionedQuery } from "~/state/revisionedQuery";
 import {
   getOptimisticProjectFileQueryData,
@@ -675,8 +675,12 @@ function EditableFileSurface({
   };
   const surfaceRef = useRef<HTMLDivElement>(null);
   const selectionFrameRef = useRef<number | null>(null);
-  const saveTarget = { environmentId, cwd, relativePath };
-  useFileSaveSession(saveTarget, onPendingChange);
+  const saveCoordinator = useFileSaveCoordinator({
+    environmentId,
+    cwd,
+    relativePath,
+    onPendingChange,
+  });
   // Retain file identity for echoed editor changes; only external changes replace the editor's draft.
   const [externalFile, setExternalFile] = useState(() =>
     editableFileContents(environmentId, cwd, relativePath, contents),
@@ -705,7 +709,7 @@ function EditableFileSurface({
     if (file.contents === getProjectFileContents(environmentId, cwd, relativePath)) return;
     setEditedContents(file.contents);
     setProjectFileQueryData(environmentId, cwd, relativePath, file.contents);
-    changeFileSaveSession(saveTarget, file.contents);
+    saveCoordinator.change(file.contents);
     if (!nextLineAnnotations) return;
     const remapped = remapFileCommentAnnotations(nextLineAnnotations);
     // The editor hands back the array it was given until an edit moves an annotation.
@@ -922,8 +926,12 @@ function RenderedMarkdownSurface({
   readOnly: boolean;
   workspaceMutationId: string | null;
 }) {
-  const saveTarget = { environmentId, cwd, relativePath };
-  useFileSaveSession(saveTarget, onPendingChange);
+  const saveCoordinator = useFileSaveCoordinator({
+    environmentId,
+    cwd,
+    relativePath,
+    onPendingChange,
+  });
 
   return (
     <ScrollArea className="min-h-0 flex-1">
@@ -943,7 +951,7 @@ function RenderedMarkdownSurface({
                 const nextContents = setMarkdownTaskChecked(currentContents, markerOffset, checked);
                 if (nextContents === currentContents) return;
                 setProjectFileQueryData(environmentId, cwd, relativePath, nextContents);
-                changeFileSaveSession(saveTarget, nextContents);
+                saveCoordinator.change(nextContents);
               }
         }
       />

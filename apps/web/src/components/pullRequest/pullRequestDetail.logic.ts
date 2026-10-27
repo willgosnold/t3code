@@ -621,11 +621,6 @@ export function isPullRequestCommentFinished(
   );
 }
 
-function isPullRequestVerdict(reviewState: string | null): boolean {
-  const outcome = pullRequestReviewOutcome(reviewState);
-  return outcome === "approved" || outcome === "changes-requested";
-}
-
 export function filterPullRequestConversationItems(
   items: ReadonlyArray<PullRequestConversationItem>,
   filter: { readonly bots: boolean; readonly resolved: boolean },
@@ -634,10 +629,7 @@ export function filterPullRequestConversationItems(
     // Matching any member keeps the finding beside a human reply to a bot.
     pullRequestConversationItemComments(item).some(
       (comment) =>
-        // A bot's approval or change request is a verdict, not chatter.
-        (filter.bots ||
-          comment.author?.isBot !== true ||
-          isPullRequestVerdict(comment.reviewState)) &&
+        (filter.bots || comment.author?.isBot !== true) &&
         (filter.resolved ||
           !isPullRequestCommentFinished(comment, item.kind === "thread" ? item.thread : undefined)),
     ),

@@ -23,11 +23,7 @@ import { startGuideRunNotifications } from "./components/pullRequest/guide/PullR
 import { APP_BASE_NAME, APP_DISPLAY_NAME, APP_STAGE_LABEL } from "./branding";
 import { resolveServerBackedAppDisplayName } from "./branding.logic";
 import { isElectron } from "./env";
-import {
-  subscribeComposerDraftModelReconciliation,
-  subscribeDraftThreadPromotion,
-  useComposerDraftStore,
-} from "./composerDraftStore";
+import { subscribeDraftThreadPromotion, useComposerDraftStore } from "./composerDraftStore";
 import { startDefaultThemeAdoption } from "./hooks/useDefaultTheme";
 import { startEnvironmentThemeRepaint } from "./hooks/useEnvironmentTheme";
 import {
@@ -46,7 +42,6 @@ import { startProviderAuthDelivery } from "./providerAuthDelivery";
 import { getRouter, type AppRouter } from "./router";
 import { appAtomRegistry } from "./rpc/atomRegistry";
 import { primaryServerConfigAtom } from "./state/server";
-import { environmentShell } from "./state/shell";
 import { installChatRouteCommands } from "./shortcuts/chatRouteCommands";
 import { installCommandPaletteCommands } from "./shortcuts/commandPaletteCommands";
 import { registerOpenFavoriteEditorCommand } from "./components/chat/OpenInPickerShortcut";
@@ -66,6 +61,9 @@ function startClientAppearance(): void {
     }
     if (previous?.chatWidth !== settings.chatWidth) {
       root.dataset.chatWidth = settings.chatWidth;
+    }
+    if (previous?.redesignEnabled !== settings.redesignEnabled) {
+      root.toggleAttribute("data-redesign", settings.redesignEnabled);
     }
     if (previous?.appearanceContrast !== settings.appearanceContrast) {
       applyAppearanceContrast(root, settings.appearanceContrast);
@@ -183,12 +181,6 @@ export function startAppServices(): AppRouter {
     registry: appAtomRegistry,
     threadShellAtom: environmentThreadShells.quietThreadShellAtom,
     threadRefsAtom: environmentThreadShells.threadRefsAtom,
-  });
-  subscribeComposerDraftModelReconciliation({
-    registry: appAtomRegistry,
-    threadShellAtom: environmentThreadShells.threadShellAtom,
-    threadRefsAtom: environmentThreadShells.threadRefsAtom,
-    shellStateAtom: environmentShell.stateAtom,
   });
   startMainAppLocationTracking(router);
   startBackgroundThreadAnnouncements(appAtomRegistry, router);

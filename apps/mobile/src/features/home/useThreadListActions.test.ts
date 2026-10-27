@@ -114,10 +114,7 @@ vi.mock("../../state/thread-order", () => ({
   },
 }));
 vi.mock("../../state/threads", () => ({
-  environmentThreadShells: {
-    threadShellsAtom: "thread-shells",
-    navigationThreadShellsAtom: "thread-shells",
-  },
+  environmentThreadShells: { threadShellsAtom: "thread-shells" },
   threadEnvironment: Object.fromEntries(
     [
       "archive",

@@ -1,5 +1,5 @@
 import { useAtomValue } from "@effect/atom-react";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { StackActions, useIsFocused, useNavigation } from "@react-navigation/native";
 import { scopeThreadRef } from "@t3tools/client-runtime/environment";
 import { summarizeSubagentStatuses } from "@t3tools/client-runtime/state/subagent-display";
 import { isActiveSubagentStatus } from "@t3tools/client-runtime/state/subagentRuntime";
@@ -8,7 +8,8 @@ import type {
   OrchestrationV2Subagent,
   OrchestrationV2TurnItem,
 } from "@t3tools/contracts";
-import { Pressable, View, type ColorValue } from "react-native";
+import { useEffect, useState } from "react";
+import { AppState, Pressable, View, type ColorValue } from "react-native";
 
 import { AppText as Text } from "../../components/ui/AppText";
 import { SymbolView } from "../../components/ui/AppSymbol";
@@ -18,11 +19,7 @@ import type { ThreadFeedActivity } from "../../lib/threadActivity";
 import { serverEnvironment } from "../../state/server";
 import { environmentThreadDetails } from "../../state/threads";
 import { subagentCardElapsed } from "./subagent-card-presentation";
-import { useEnvironments } from "../../state/environments";
-import { useServerConfigs } from "../../state/entities";
 import { SubagentRow } from "./SubagentRow";
-import { useVisibleSecondClock } from "./use-visible-second-clock";
-import { subagentThreadTarget } from "./threadAgentsPresentation";
 import { WorkLogBlock } from "./work-log-layout";
 
 import { useOpenThreadInspector } from "./thread-inspector-navigation";
@@ -31,8 +28,21 @@ type SubagentItem = Extract<OrchestrationV2TurnItem, { type: "subagent" }>;
 type AgentTiming = Pick<OrchestrationV2Subagent, "status" | "startedAt" | "completedAt">;
 
 function SubagentElapsed({ agents }: { readonly agents: ReadonlyArray<AgentTiming> }) {
+  const focused = useIsFocused();
   const live = agents.some((agent) => isActiveSubagentStatus(agent.status));
-  const nowMs = useVisibleSecondClock(live);
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const [appActive, setAppActive] = useState(() => AppState.currentState === "active");
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) =>
+      setAppActive(state === "active"),
+    );
+    return () => subscription.remove();
+  }, []);
+  useEffect(() => {
+    if (!live || !focused || !appActive) return;
+    const intervalId = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => clearInterval(intervalId);
+  }, [appActive, focused, live]);
   const elapsed = subagentCardElapsed(agents, nowMs);
   return elapsed ? (
     <Text className="shrink-0 text-xs tabular-nums text-foreground-muted">{elapsed}</Text>
@@ -71,7 +81,6 @@ export function ThreadSubagentGroup(props: {
     environmentThreadDetails.threadAtom(scopeThreadRef(props.environmentId, members[0]!.threadId)),
     (thread) => thread?.projection.subagents,
   );
-  const { presentationById } = useEnvironments();
   const agents = members.map((item) => {
     const live = liveAgents?.find((agent) => agent.id === item.subagentId);
     return {
@@ -89,13 +98,8 @@ export function ThreadSubagentGroup(props: {
   const label = `${agents.length} subagents`;
   const summary = summarizeSubagentStatuses(agents.map((agent) => agent.status));
   const expanded = props.expandedRows[props.anchorKey] ?? false;
-  const serverConfigs = useServerConfigs();
-  // A task in a linked environment runs a provider instance of that environment.
   const iconUrl = (item: SubagentItem) =>
-    (item.remoteChild === undefined
-      ? config
-      : serverConfigs.get(item.remoteChild.environmentId)
-    )?.providers.find((provider) => provider.instanceId === item.providerInstanceId)?.iconUrl;
+    config?.providers.find((provider) => provider.instanceId === item.providerInstanceId)?.iconUrl;
   return (
     <WorkLogBlock>
       {grouped ? (
@@ -146,40 +150,29 @@ export function ThreadSubagentGroup(props: {
       {!grouped || expanded ? (
         <View className="mb-1 gap-px rounded-xl border border-border bg-card/30 p-1">
           {agents.map((agent) => {
-            // A task in a linked environment opens there, if this app is connected to it.
-            const target = subagentThreadTarget(agent, props.environmentId, (id) =>
-              presentationById.has(id),
-            );
+            const threadId = agent.childThreadId;
             return (
               <Pressable
                 key={agent.item.id}
                 accessible
-                accessibilityRole={target === null ? undefined : "link"}
+                accessibilityRole={threadId === null ? undefined : "link"}
                 accessibilityHint={
-                  target !== null
-                    ? "Opens this agent's thread"
-                    : agent.remoteChild !== undefined
-                      ? `Runs on ${agent.remoteChild.label}`
-                      : "Provider-managed agent"
+                  threadId === null ? "Provider-managed agent" : "Opens this agent's thread"
                 }
-                disabled={target === null}
+                disabled={threadId === null}
                 onPress={() => {
-                  if (target === null) return;
+                  if (threadId === null) return;
                   if (
                     openInspector(
                       { environmentId: props.environmentId, threadId: members[0]!.threadId },
-                      {
-                        type: "thread",
-                        environmentId: target.environmentId,
-                        threadId: target.threadId,
-                      },
+                      { type: "thread", environmentId: props.environmentId, threadId },
                     )
                   )
                     return;
                   navigation.dispatch(
                     StackActions.push("Thread", {
-                      environmentId: String(target.environmentId),
-                      threadId: String(target.threadId),
+                      environmentId: String(props.environmentId),
+                      threadId: String(threadId),
                     }),
                   );
                 }}
@@ -188,7 +181,6 @@ export function ThreadSubagentGroup(props: {
                 <SubagentRow
                   environmentId={props.environmentId}
                   subagent={agent}
-                  canOpenRemote={target !== null}
                   elapsed={<SubagentElapsed agents={[agent]} />}
                 />
               </Pressable>

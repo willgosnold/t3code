@@ -5,7 +5,7 @@ import type * as Stream from "effect/Stream";
 export type ConnectionWakeup =
   | "application-active"
   | "application-active-probe"
-  | "application-active-long"
+  | "application-active-reconnect"
   | "credentials-changed"
   | "network-changed";
 
@@ -13,7 +13,7 @@ function isApplicationActiveWakeup(reason: ConnectionWakeup): boolean {
   return (
     reason === "application-active" ||
     reason === "application-active-probe" ||
-    reason === "application-active-long"
+    reason === "application-active-reconnect"
   );
 }
 
@@ -21,8 +21,9 @@ export function resetsRetryBackoff(reason: ConnectionWakeup): boolean {
   return isApplicationActiveWakeup(reason) || reason === "network-changed";
 }
 
+// A long resume replaces the session, and the new session subscribes on its own.
 export function shouldResubscribeAfterWakeup(reason: ConnectionWakeup): boolean {
-  return isApplicationActiveWakeup(reason);
+  return reason === "application-active" || reason === "application-active-probe";
 }
 
 export class ConnectionWakeups extends Context.Service<

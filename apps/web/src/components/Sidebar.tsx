@@ -127,7 +127,6 @@ import {
 import {
   readThreadShell,
   useAllEnvironmentProjectSnapshotsReady,
-  useDelegatedUnderParent,
   useProjects,
   useServerConfigs,
   useQuietThreadShells,
@@ -311,8 +310,6 @@ type SidebarOptimisticDrop = {
 interface SidebarThreadPartitionInput {
   readonly threads: readonly EnvironmentThreadShell[];
   readonly scopedProjectKeys: ReadonlySet<string> | null;
-  /** Tasks linked environments run for a listed thread; they show under it. */
-  readonly delegatedUnderParent: ReadonlySet<string>;
   readonly serverConfigs: ReadonlyMap<EnvironmentId, EnvironmentServerConfig>;
   readonly optimisticDrop: SidebarOptimisticDrop | null;
   readonly workingShelfEnabled: boolean;
@@ -374,7 +371,6 @@ function useSidebarThreads(input: {
   readonly serverConfigs: ReadonlyMap<EnvironmentId, EnvironmentServerConfig>;
   readonly optimisticDrop: SidebarOptimisticDrop | null;
   readonly threads: readonly EnvironmentThreadShell[];
-  readonly delegatedUnderParent: ReadonlySet<string>;
   readonly routeRowThreadKey: string | null;
 }) {
   const {
@@ -383,7 +379,6 @@ function useSidebarThreads(input: {
     serverConfigs,
     optimisticDrop,
     threads,
-    delegatedUnderParent,
     routeRowThreadKey,
   } = input;
   const workingShelfEnabled = useClientSettings((s) => s.sidebarWorkingShelfEnabled);
@@ -422,7 +417,6 @@ function useSidebarThreads(input: {
   const partition = partitionSidebarThreads({
     threads,
     scopedProjectKeys,
-    delegatedUnderParent,
     serverConfigs,
     optimisticDrop,
     workingShelfEnabled,
@@ -526,16 +520,9 @@ function useSidebarThreads(input: {
 }
 
 function partitionSidebarThreads(input: SidebarThreadPartitionInput) {
-  const {
-    threads,
-    scopedProjectKeys,
-    delegatedUnderParent,
-    serverConfigs,
-    optimisticDrop,
-    workingShelfEnabled,
-  } = input;
+  const { threads, scopedProjectKeys, serverConfigs, optimisticDrop, workingShelfEnabled } = input;
   const preciseNow = new Date().toISOString();
-  const visible = filterSidebarV2VisibleThreads(threads, scopedProjectKeys, delegatedUnderParent);
+  const visible = filterSidebarV2VisibleThreads(threads, scopedProjectKeys);
   const inboxObservation = inboxReturns.observe(workingShelfEnabled ? threads : null);
   const pinned: EnvironmentThreadShell[] = [];
   const active: EnvironmentThreadShell[] = [];
@@ -804,7 +791,6 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     projectGroupByScopeKey,
     projectScopeItems,
   } = useSidebarLookups();
-  const delegatedUnderParent = useDelegatedUnderParent();
   const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
   const keybindings = useAtomValue(primaryServerKeybindingsAtom);
@@ -1010,7 +996,6 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     routeKey: routeRowThreadKey,
     isSearching: isSearchingThreads,
     scopedProjectKeys: chosenScopeProjectKeys,
-    delegatedUnderParent,
     findThread: (key) => threads.find((candidate) => threadShellKey(candidate) === key),
   });
   const projectScopeKey = revealWidensScope ? null : chosenProjectScopeKey;
@@ -1152,7 +1137,6 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     serverConfigs,
     optimisticDrop,
     threads,
-    delegatedUnderParent,
     routeRowThreadKey,
   });
 
@@ -3217,10 +3201,14 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             olderSettledShelf.retry();
                             showMoreSettled();
                           }}
-                          className="flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 text-left text-sm text-sidebar-muted-foreground hover:bg-sidebar-row-hover hover:text-sidebar-foreground disabled:cursor-default"
+                          className="flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 text-left text-sm text-sidebar-muted-foreground/55 hover:bg-sidebar-row-hover hover:text-sidebar-foreground disabled:cursor-default redesign:text-sidebar-muted-foreground"
                         >
-                          {/* Plus means "add", so revealing more uses a chevron. */}
-                          <ChevronDownIcon aria-hidden className="size-4 shrink-0" />
+                          {/* The New design keeps plus for "add" and uses a chevron to reveal more. */}
+                          <PlusIcon aria-hidden className="size-4 shrink-0 redesign:hidden" />
+                          <ChevronDownIcon
+                            aria-hidden
+                            className="hidden size-4 shrink-0 redesign:block"
+                          />
                           {olderSettledShelf.loading
                             ? "Loading"
                             : olderSettledShelf.failed

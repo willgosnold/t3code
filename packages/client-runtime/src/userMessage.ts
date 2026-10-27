@@ -27,7 +27,7 @@ export function resolveUserMessagePresentation(message: {
   readonly text: string;
   readonly createdBy?: OrchestrationV2Actor;
   readonly creationSource?: OrchestrationV2CreationSource;
-  readonly scheduledTaskId?: ScheduledTaskId | undefined;
+  readonly scheduledTaskId?: ScheduledTaskId;
   readonly context?: { readonly guest?: GuestMessageAttribution | undefined } | undefined;
 }): {
   readonly text: string;

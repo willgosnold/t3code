@@ -43,7 +43,6 @@ const lucideIcons = [
   "message-circle",
   "messages-square",
   "mouse-pointer-click",
-  "server",
   "terminal",
 ];
 

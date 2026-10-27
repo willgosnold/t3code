@@ -1,3 +1,4 @@
+import { useNewTaskFlow } from "./new-task-flow-provider";
 import * as Dialog from "../../components/ui/Dialog";
 import {
   CommonActions,
@@ -6,7 +7,7 @@ import {
   usePreventRemoveContext,
   type StaticScreenProps,
 } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 import { useAtomValue } from "@effect/atom-react";
 import {
@@ -90,6 +91,13 @@ const idleBranchCheckoutAtom = Atom.make(AsyncResult.initial<BranchCheckoutResul
 export function NewTaskDraftRouteScreen({ route }: StaticScreenProps<NewTaskDraftRouteParams>) {
   const currentRoute = useRoute();
   const params = route.params ?? {};
+  const { reset } = useNewTaskFlow();
+  const [initialized, setInitialized] = useState(false);
+  useLayoutEffect(() => {
+    reset();
+    // oxlint-disable-next-line react/set-state-in-effect -- Draft reset runs once before first paint; initialized gates the screen until then.
+    setInitialized(true);
+  }, [reset]);
   const draftId = Array.isArray(params.draftId) ? params.draftId[0] : params.draftId;
   const projects = useProjects();
   const { state: catalogState } = useWorkspaceState();
@@ -193,6 +201,7 @@ export function NewTaskDraftRouteScreen({ route }: StaticScreenProps<NewTaskDraf
   };
   const preparingBranch = checkoutPending || (needsPreparation && result?._tag !== "Success");
 
+  if (!initialized) return null;
   return (
     <>
       {preparingBranch ? (

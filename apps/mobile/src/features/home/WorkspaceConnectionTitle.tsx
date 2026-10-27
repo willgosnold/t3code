@@ -1,5 +1,5 @@
 import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
-import { createContext, use, useEffect, useState, type ReactNode } from "react";
+import { createContext, use, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Animated, Platform, Pressable, View } from "react-native";
 
 import { AppActivityIndicator } from "../../components/ui/AppActivityIndicator";
@@ -11,7 +11,6 @@ import {
   CompactBrandTitle,
   getCompactBrandHeaderOptions,
 } from "../../components/CompactBrandTitle";
-import { useDeadlinePassed } from "../../lib/clock";
 import { useWorkspaceState } from "../../state/workspace";
 import {
   workspaceConnectionStatusPresentation,
@@ -38,24 +37,29 @@ export function WorkspaceConnectionStatusProvider(props: { readonly children: Re
   const { state } = useWorkspaceState();
   const presentation = workspaceConnectionStatusPresentation(state);
   const hasStatus = presentation !== null;
-  // When the current status run began; a gap in the status restarts the delay.
-  const [statusSince, setStatusSince] = useState(() => (hasStatus ? Date.now() : null));
-  if (hasStatus !== (statusSince !== null)) {
-    // oxlint-disable-next-line react/purity -- Reads the clock only in the render-phase adjustment that runs when the status appears.
-    setStatusSince(hasStatus ? Date.now() : null);
-  }
-  const since = hasStatus ? statusSince : null;
-  const fadeStarted = useDeadlinePassed(since === null ? null : since + STATUS_SHOW_DELAY_MS);
-  const fadeEnded = useDeadlinePassed(
-    since === null ? null : since + STATUS_SHOW_DELAY_MS + FADE_IN_MS,
-  );
+  const [phase, setPhase] = useState<"waiting" | "fading" | "shown">("waiting");
+
+  useEffect(() => {
+    if (!hasStatus) return;
+    const timers = [
+      setTimeout(() => setPhase("fading"), STATUS_SHOW_DELAY_MS),
+      setTimeout(() => setPhase("shown"), STATUS_SHOW_DELAY_MS + FADE_IN_MS),
+    ];
+    return () => {
+      for (const timer of timers) clearTimeout(timer);
+      setPhase("waiting");
+    };
+  }, [hasStatus]);
 
   const label = presentation?.label;
   const showsProgress = presentation?.showsProgress ?? false;
-  const status =
-    label === undefined || since === null || !fadeStarted
-      ? null
-      : { label, showsProgress, fadeIn: !fadeEnded };
+  const status = useMemo(
+    () =>
+      label === undefined || phase === "waiting"
+        ? null
+        : { label, showsProgress, fadeIn: phase === "fading" },
+    [label, showsProgress, phase],
+  );
   return <ConnectionStatusContext value={status}>{props.children}</ConnectionStatusContext>;
 }
 
@@ -68,6 +72,7 @@ function StatusFadeIn(props: {
 }) {
   const { animate } = props;
   const [opacity] = useState(() => new Animated.Value(0));
+
   useEffect(() => {
     if (!animate) return;
     const animation = Animated.timing(opacity, {
