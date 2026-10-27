@@ -1,0 +1,7 @@
+layout = "fork"
+
+[[upstream]]
+name = "t3code"
+remote = "https://github.com/pingdotgg/t3code.git"
+branch = "main"
+mount = ""
