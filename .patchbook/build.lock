@@ -229,7 +229,7 @@
 100644 753c3eb75907280bc1f1fd3d91213cba51190060 .github/scripts/thread-transfer-report.test.cjs
 100644 a249653350f223093950ce0fd728e61c9b381eef .github/scripts/vercel-deployment-output.test.cjs
 100644 13ca38fed4ad61f66cc5aabb89c83af5d8b4e7c3 .github/triage/PLAYBOOK.md
-100644 8e389b524541d28a4942738d2b3c00a2c360559d .github/workflows/ci.yml
+100644 dc9aee7ebfa5e7035cd4f50aea67beed5afa1246 .github/workflows/ci.yml
 100644 bf8591f81da9baa928683fc3143b8d59bff9f6f8 .github/workflows/deploy-relay.yml
 100644 bd6f59bc0f0bc53204882af75f0ca9a4846de116 .github/workflows/desktop-macos-preview-publish.yml
 100644 6dcdd702c2da1b5e4490f5f261af74074cca93c8 .github/workflows/desktop-macos-preview.yml
@@ -237,7 +237,7 @@
 100644 18d977c50f4a097093a5607cf049b74ab2336136 .github/workflows/mobile-android-apk.yml
 100644 107c741424b08c1b6c3bcf6075e81a223c768a93 .github/workflows/mobile-eas-preview.yml
 100644 b6581e0e8ea49c7d49ca5dd7a7e079d30ee29c53 .github/workflows/mobile-eas-production.yml
-100644 b8b872f019f6e6c4caf1973c8322771deebfcec8 .github/workflows/mobile-fingerprint-check.yml
+100644 5849b71ddbb8a314bc950cc81e7bbb3ba717731c .github/workflows/mobile-fingerprint-check.yml
 100644 c02be425c1ab7faf0bf576626388c1b1d76f842c .github/workflows/mobile-showcase-screenshots.yml
 100644 af557dff62df8ffbc330805672a349da53e3d56f .github/workflows/pr-size.yml
 100644 c4abb08b727b273d0bb81584483bf9b28857ea98 .github/workflows/pr-vouch.yml
@@ -249,7 +249,7 @@
 100644 b7b475a6117dce5605ba63cbc52be2023ac8217b .github/workflows/stale-needs-more-info.yml
 100644 23eec72923bd8fa7ab6d1a69e735f278f7b7de71 .github/workflows/thread-transfer-report.yml
 100644 4b3f8952d503db5ef7f402683e1e074909b6988f .github/workflows/web-preview.yml
-100644 3a70ad5a26a05aaa93201f69b182a50b5026a908 .github/workflows/windows-tests.yml
+100644 21a61e91cc8ee54339d1acf06799deb4ce321952 .github/workflows/windows-tests.yml
 100644 b33f3469c53459c1cb687ad01a35a9f6c701deb6 .gitignore
 100644 ce4f160ae602f3b200e0b7779564d55a32c8eadf .macroscope/approvability.md
 100644 f7cef3929ab103bd59c7363be99fabbecb404520 .macroscope/check-run-agents/effect-service-conventions.md
