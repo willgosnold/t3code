@@ -1,0 +1,119 @@
+import { formatProviderSkillDisplayName } from "@t3tools/shared/inlineSkills";
+import type { ServerProviderSkill } from "@t3tools/contracts";
+import {
+  dedupeProviderSkillsByName,
+  isProviderSkillUserInvocable,
+} from "@t3tools/client-runtime/providerSkills";
+import {
+  compareBySkillUsage,
+  EMPTY_SKILL_USAGE,
+  promoteUsedSkills,
+  type SkillUsage,
+} from "@t3tools/client-runtime/skillUsage";
+import {
+  insertRankedSearchResult,
+  normalizeSearchQuery,
+  scoreQueryMatch,
+} from "@t3tools/shared/searchRanking";
+
+export function scoreProviderSkill(skill: ServerProviderSkill, query: string): number | null {
+  const normalizedName = skill.name.toLowerCase();
+  const normalizedLabel = formatProviderSkillDisplayName(skill).toLowerCase();
+  const normalizedShortDescription = skill.shortDescription?.toLowerCase() ?? "";
+  const normalizedDescription = skill.description?.toLowerCase() ?? "";
+  const normalizedScope = skill.scope?.toLowerCase() ?? "";
+
+  const scores = [
+    scoreQueryMatch({
+      value: normalizedName,
+      query,
+      exactBase: 0,
+      prefixBase: 2,
+      boundaryBase: 4,
+      includesBase: 6,
+      fuzzyBase: 100,
+      boundaryMarkers: ["-", "_", "/"],
+    }),
+    scoreQueryMatch({
+      value: normalizedLabel,
+      query,
+      exactBase: 1,
+      prefixBase: 3,
+      boundaryBase: 5,
+      includesBase: 7,
+      fuzzyBase: 110,
+    }),
+    scoreQueryMatch({
+      value: normalizedShortDescription,
+      query,
+      exactBase: 20,
+      prefixBase: 22,
+      boundaryBase: 24,
+      includesBase: 26,
+    }),
+    scoreQueryMatch({
+      value: normalizedDescription,
+      query,
+      exactBase: 30,
+      prefixBase: 32,
+      boundaryBase: 34,
+      includesBase: 36,
+    }),
+    scoreQueryMatch({
+      value: normalizedScope,
+      query,
+      exactBase: 40,
+      prefixBase: 42,
+      includesBase: 44,
+    }),
+  ].filter((score): score is number => score !== null);
+
+  if (scores.length === 0) {
+    return null;
+  }
+
+  return Math.min(...scores);
+}
+
+export function searchProviderSkills(
+  skills: ReadonlyArray<ServerProviderSkill>,
+  query: string,
+  limit = Number.POSITIVE_INFINITY,
+  usage: SkillUsage = EMPTY_SKILL_USAGE,
+): ServerProviderSkill[] {
+  const enabledSkills = dedupeProviderSkillsByName(skills.filter(isProviderSkillUserInvocable));
+  const normalizedQuery = normalizeSearchQuery(query, { trimLeadingPattern: /^\p{Sc}+/u });
+
+  if (!normalizedQuery) {
+    return promoteUsedSkills(enabledSkills, (skill) => skill.name, usage);
+  }
+
+  const ranked: Array<{
+    item: ServerProviderSkill;
+    score: number;
+    tieBreaker: string;
+  }> = [];
+
+  for (const skill of enabledSkills) {
+    const score = scoreProviderSkill(skill, normalizedQuery);
+    if (score === null) {
+      continue;
+    }
+
+    insertRankedSearchResult(
+      ranked,
+      {
+        item: skill,
+        score,
+        tieBreaker: `${formatProviderSkillDisplayName(skill).toLowerCase()}\u0000${skill.name}`,
+      },
+      Number.POSITIVE_INFINITY,
+    );
+  }
+
+  // Array.sort is stable, so usage ties keep the alphabetical tieBreaker order.
+  return ranked
+    .sort((a, b) => a.score - b.score || compareBySkillUsage(usage, a.item.name, b.item.name))
+    .slice(0, limit)
+    .map((entry) => entry.item);
+}

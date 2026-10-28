@@ -41,6 +41,12 @@ import {
   resolveProviderSkillsForCwd,
   resolveProviderSlashCommandsForCwd,
 } from "@t3tools/client-runtime/providerSkills";
+import {
+  compareBySkillUsage,
+  EMPTY_SKILL_USAGE,
+  promoteUsedSkills,
+  type SkillUsage,
+} from "@t3tools/client-runtime/skillUsage";
 import { useAtomRefresh } from "@effect/atom-react";
 import { Atom } from "effect/reactivity";
 import { useEffect, useState } from "react";
@@ -210,6 +216,7 @@ export function useComposerCommandMenu({
   hasThread,
   hasCompactableConversation,
   offersUsageLimits = false,
+  skillUsage = EMPTY_SKILL_USAGE,
   enabled = true,
   onChangeDraftMessage,
   onUpdateInteractionMode,
@@ -228,6 +235,7 @@ export function useComposerCommandMenu({
   readonly hasThread: boolean;
   readonly hasCompactableConversation: boolean;
   readonly offersUsageLimits?: boolean;
+  readonly skillUsage?: SkillUsage;
   readonly enabled?: boolean;
   readonly onChangeDraftMessage: (value: string) => void;
   readonly onUpdateInteractionMode?: (mode: ProviderInteractionMode) => void;
@@ -356,7 +364,11 @@ export function useComposerCommandMenu({
           description: skill.shortDescription ?? skill.description ?? "",
         }));
 
-      return [...commandItems, ...skillItems];
+      return promoteUsedSkills(
+        [...commandItems, ...skillItems],
+        (item) => (item.type === "skill" ? item.skill.name : null),
+        skillUsage,
+      );
     }
 
     if (trigger.kind === "skill") {
@@ -366,13 +378,15 @@ export function useComposerCommandMenu({
       });
 
       if (!normalizedQuery) {
-        return enabledSkills.slice(0, 20).map((skill) => ({
-          id: `skill:${skill.name}`,
-          type: "skill" as const,
-          skill,
-          label: skill.displayName ?? skill.name,
-          description: skill.shortDescription ?? skill.description ?? "",
-        }));
+        return promoteUsedSkills(enabledSkills, (skill) => skill.name, skillUsage)
+          .slice(0, 20)
+          .map((skill) => ({
+            id: `skill:${skill.name}`,
+            type: "skill" as const,
+            skill,
+            label: skill.displayName ?? skill.name,
+            description: skill.shortDescription ?? skill.description ?? "",
+          }));
       }
 
       const ranked: Array<{
@@ -428,18 +442,24 @@ export function useComposerCommandMenu({
               score: Math.min(...scores),
               tieBreaker: `${displayLabel}\u0000${skill.name}`,
             },
-            20,
+            Number.POSITIVE_INFINITY,
           );
         }
       }
 
-      return ranked.map(({ item: skill }) => ({
-        id: `skill:${skill.name}`,
-        type: "skill" as const,
-        skill,
-        label: skill.displayName ?? skill.name,
-        description: skill.shortDescription ?? skill.description ?? "",
-      }));
+      // Array.sort is stable, so usage ties keep the alphabetical tieBreaker order.
+      return ranked
+        .sort(
+          (a, b) => a.score - b.score || compareBySkillUsage(skillUsage, a.item.name, b.item.name),
+        )
+        .slice(0, 20)
+        .map(({ item: skill }) => ({
+          id: `skill:${skill.name}`,
+          type: "skill" as const,
+          skill,
+          label: skill.displayName ?? skill.name,
+          description: skill.shortDescription ?? skill.description ?? "",
+        }));
     }
 
     if (trigger.kind === "path") {

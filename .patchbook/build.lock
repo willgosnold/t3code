@@ -23421,7 +23421,7 @@
 100644 fed455fe9ba8e23bcf900bfe92bda2c6142d2326 apps/mobile/src/features/threads/ThreadAgentsSheet.tsx
 100644 ff8865e166bb4d9f0c5ec6d015b2185b35837816 apps/mobile/src/features/threads/ThreadArrangementSheet.tsx
 100644 c4db6d7a93752ca94823dcc3e953ff3118ad6ab1 apps/mobile/src/features/threads/ThreadBackgroundWorkSheet.tsx
-100644 5f910dfc929f58f3bdf29a9ba4fa8e7aa4f9bddc apps/mobile/src/features/threads/ThreadComposer.tsx
+100644 bc702648ddf0bc3a495f13598555b568f8256c33 apps/mobile/src/features/threads/ThreadComposer.tsx
 100644 141519800eee1615d0a5b519f95f63e5a25959bb apps/mobile/src/features/threads/ThreadCreationFailedCard.tsx
 100644 1820baa8095caeb3f5ecc3466f3f266328b77c6d apps/mobile/src/features/threads/ThreadDetailScreen.tsx
 100644 36fe66a026493c65fb1d597ecb01bc543a006a84 apps/mobile/src/features/threads/ThreadFeed.tsx
@@ -23537,7 +23537,7 @@
 100644 6598aa071f62aa275195f8fbd7979c466e48b40f apps/mobile/src/features/threads/threadStreamHaptics.test.ts
 100644 1f5e64606985811e723baf25c0633e29d9e6c338 apps/mobile/src/features/threads/threadStreamHaptics.ts
 100644 c0044a74f7944790426d6ed6e930e106840f2c6c apps/mobile/src/features/threads/use-composer-command-menu.test.ts
-100644 af4091a5f023d2752674e39a8a93c8e6e3238fa8 apps/mobile/src/features/threads/use-composer-command-menu.ts
+100644 56150e0979e1d1b49d5367cc1f744f56821b9aba apps/mobile/src/features/threads/use-composer-command-menu.ts
 100644 694a34e632e3f9367a703acfd80df73a49041de8 apps/mobile/src/features/threads/use-legacy-plan-mode-enabled.ts
 100644 3190eeb571b23c4f92ab00445017d22d3133f9d7 apps/mobile/src/features/threads/use-new-task-project-defaults.ts
 100644 d3af2d74cdfa83d1bf89e79b2541656f1aa5e109 apps/mobile/src/features/threads/use-open-thread-pull-requests.ts
@@ -23847,7 +23847,7 @@
 100644 c64adc015471ba3c580ccfb4f6ec982c09432ec0 apps/mobile/src/persistence/layer.ts
 100644 4e3b792653c8c59feef82f0fc85150ddaa9fc129 apps/mobile/src/persistence/mobile-database.test.ts
 100644 e6549c2229629a0f753552c6db3e7cd127bd08d4 apps/mobile/src/persistence/mobile-database.ts
-100644 dda53132870e7ef618242b5aa59dcbf3b68b3910 apps/mobile/src/persistence/mobile-preferences.ts
+100644 01537906c2e337c8704d7c18986823a531d1205b apps/mobile/src/persistence/mobile-preferences.ts
 100644 44ad2900d89bfb5af12f364f01657ef22e40f2a1 apps/mobile/src/persistence/mobile-secure-storage.ts
 100644 363875ade020dd90397a2200f75481f9a550e063 apps/mobile/src/persistence/mobile-storage.test.ts
 100644 6ffb34d7a7cf28648ef75b69dfa1c8c87eabeddb apps/mobile/src/persistence/mobile-storage.ts
@@ -23916,6 +23916,7 @@
 100644 c965f8d26bfe64f01cdc4e48c18f980984bc35f4 apps/mobile/src/state/session.test.ts
 100644 010325dfe722ad89f8587dcb6a50b38bfc80509d apps/mobile/src/state/session.ts
 100644 bdde55e8b46fcb3e76eb02adae6e5df21bb36356 apps/mobile/src/state/shell.ts
+100644 7a48e81369d716603695d19d37650f38eb23e136 apps/mobile/src/state/skill-usage.ts
 100644 aa6255f85fff40fba5e3162bf6151c8ac02b387c apps/mobile/src/state/sourceControl.ts
 100644 920267c33d5cd5fc17971451aaceadb3cdb5e8a8 apps/mobile/src/state/terminal.ts
 100644 3e91b7cb778c13116b98c3f7af861ac3f1675275 apps/mobile/src/state/thread-composer-error.test.ts
@@ -25635,7 +25636,7 @@
 100644 41ee46353f9085fa3f23a427f4c7abbf954755fa apps/web/src/components/chat/ChatBannerLane.tsx
 100644 a0be0a3b6766eac17ac4cd6fe21342595686cbfe apps/web/src/components/chat/ChatCanvas.tsx
 100644 4db2229f4d4116a1ff4ae2b62d261627cd6cc8a3 apps/web/src/components/chat/ChatCanvasContext.ts
-100644 d7b46eea0abc038f70896e9cf0a184d64f53c8d0 apps/web/src/components/chat/ChatComposer.tsx
+100644 0500432bb0e56fc3e64a5024a471d87ea70f309f apps/web/src/components/chat/ChatComposer.tsx
 100644 905e74ce1cc3d66e881d7ae7d3fc963dc4857ef6 apps/web/src/components/chat/ChatGptSharingControl.tsx
 100644 6add111820f5776f7c4f375392357c5ba46bf3d6 apps/web/src/components/chat/ChatHeader.tsx
 100644 3c49f7a88f45b95893ad9fcafa7e72fd8f2a1d3c apps/web/src/components/chat/ChatMarkdownMedia.browser.test.tsx
@@ -25826,7 +25827,8 @@
 100644 062fbc22eb66e1bc78c6b4c427aad6fae6255b20 apps/web/src/components/chat/composerSend.logic.test.ts
 100644 e19512e6c90d4319c3fe413b3032d75dd5dcc161 apps/web/src/components/chat/composerSend.logic.ts
 100644 30beb9771968f3d6e08d629052c34193d8b36f0b apps/web/src/components/chat/composerShortcuts.ts
-100644 adc095abaebfb9f3a6acbc1d9ac1063d0cfa6836 apps/web/src/components/chat/composerSlashCommandSearch.ts
+100644 0dc53f480914c3c80fd3aa25a75a423c9e13a683 apps/web/src/components/chat/composerSlashCommandSearch.test.ts
+100644 885be8b72c3dc093de7635b1c19e7d3ae1e88712 apps/web/src/components/chat/composerSlashCommandSearch.ts
 100644 6be1cd0733f2bc340cc2b56317e0aa127bb2b47d apps/web/src/components/chat/composerSubmission.test.ts
 100644 9e35aca99cf90a31f00d2e0e82ea6b7074376eb3 apps/web/src/components/chat/composerSubmission.ts
 100644 8a04b3896cc27bd49336e5a7ae697b0f5a83fbb3 apps/web/src/components/chat/composerThreadImport.test.ts
@@ -25895,21 +25897,21 @@
 100644 5b560b06017265b2908b270c37e47fb42b6bbd48 apps/web/src/components/chat/useComposerContextImport.ts
 100644 11eb2496d8056dabbc4866726092d013493a0987 apps/web/src/components/chat/useComposerFocusState.ts
 100644 87342ae87f4fe14682544dd86f81d480f8732955 apps/web/src/components/chat/useComposerImageGroups.ts
-100644 0fc18e77a62751cd8eafc3e40570459682efcf71 apps/web/src/components/chat/useComposerMenuItems.ts
+100644 792f110abdf4b1e83441fb5f2f3347bfe7a7e5d9 apps/web/src/components/chat/useComposerMenuItems.ts
 100644 3a3a0bbe527a5cb502112a839a65fe2c3d3468fa apps/web/src/components/chat/useComposerMenuState.ts
 100644 c09c371aa997a586c90704725bf2aaa030d1efc3 apps/web/src/components/chat/useComposerMultilinePrompt.ts
 100644 24920d1593b4513f222db885d97d310f25e3ade8 apps/web/src/components/chat/useComposerProviderModel.ts
 100644 64b18b67780199a285555145da4338f8b7980baf apps/web/src/components/chat/useComposerRestingTransition.ts
 100644 ff7f6a1e279f73c25106934cc755f7bbab25ae68 apps/web/src/components/chat/useComposerResume.ts
 100644 61992327d3610b5c7248e078b29ea49e5c5e1f41 apps/web/src/components/chat/useComposerSelection.ts
-100644 c63a6a3f4fce153dfae884aeb038cb62854c0b6b apps/web/src/components/chat/useComposerSend.ts
+100644 d36854172930c0c092b9718900aa395b5df1a80e apps/web/src/components/chat/useComposerSend.ts
 100644 ee7bacf4dbb29631bbb0ab9a09bdb996e092ee6e apps/web/src/components/chat/useComposerStash.ts
 100644 6adf037e1e45b9b7a6875a5406286d2da5dbe148 apps/web/src/components/chat/useComposerTriggerState.ts
 100644 22c517f4ed1dbc9024a2f599fc8699239535ce1d apps/web/src/components/chat/useComposerTypingGuard.ts
 100644 1ef648e48c90df524a9022c9eac3b2f087c640d7 apps/web/src/components/chat/useDraftEnvironmentRouting.ts
 100644 a156512a3d37a75a12b0324cd52dc3af2e7e302d apps/web/src/components/chat/useDraftHeroLayoutTransition.ts
 100644 977028db17b9e89f496f466387a8731a6329866d apps/web/src/components/chat/useLocalDispatchState.ts
-100644 a2d80ee04a65a2e15a5d3ae68485f89161e97728 apps/web/src/components/chat/useMultipleModelSend.ts
+100644 402273fdd3c3bd500b8513f4d7dcc52ece377365 apps/web/src/components/chat/useMultipleModelSend.ts
 100644 7311b3f4c0edbd4902b972515d122231396f30a6 apps/web/src/components/chat/usePasteToFocusComposer.ts
 100644 35e4cc5f08551c8fbfc24d73ce1f894e1651c7fd apps/web/src/components/chat/usePendingThreadRequests.ts
 100644 9402d181c7485a8c797eb2f4e1d033acc60fc107 apps/web/src/components/chat/useProjectCloneBanner.tsx
@@ -26905,8 +26907,8 @@
 100644 60c7de4eccac52eff589cd290ef4129c819822da apps/web/src/providerInstances.ts
 100644 73a78d07deda82e7eb0deda05b8decd7624acb22 apps/web/src/providerModels.test.ts
 100644 1b7d139bd087145256b4502e7a1e2e0f9162f2b5 apps/web/src/providerModels.ts
-100644 438a1e18263a7dcc4847480a6dca6ea6b50e171c apps/web/src/providerSkillSearch.test.ts
-100644 21e182360f9ad6c455aa54a0bf2908b322a2dee9 apps/web/src/providerSkillSearch.ts
+100644 586b35e5a036b1584c5039214b4b0d5531018118 apps/web/src/providerSkillSearch.test.ts
+100644 101bad3ccfcc64c021d8fde6b3accaabf6c6c119 apps/web/src/providerSkillSearch.ts
 100644 2b1120f23df1f92d684749f9698dae1234346434 apps/web/src/questionAttachments.test.ts
 100644 8305bb679bf643f3e920b8da2ccf1dd33f9e4acb apps/web/src/questionAttachments.ts
 100644 b0e4d9dfb9a55a87f84904cd3b5c70845b970194 apps/web/src/reactCompilerCoverage.test.ts
@@ -26980,6 +26982,7 @@
 100644 4d31f4b65313d777dd6a80f8ba3c686b329785f2 apps/web/src/sidebarPendingFileDropStore.test.ts
 100644 96db00bbcd9b3618040bbd2db73df086cf32183c apps/web/src/sidebarPendingFileDropStore.ts
 100644 7182405bbd0f9cb2bd7f6df90e8fbcc79d42cbbb apps/web/src/sidebarProjectGrouping.ts
+100644 59e443e6d37b5a91f33698f57e9f77337f88f416 apps/web/src/skillUsageStore.ts
 100644 c122ed0fd38d7acf17c4f8f168e6dc152cfc33fb apps/web/src/sourceControlPresentation.tsx
 100644 58670d4d6c8f051c5c5eaa0f85fdf1b783ad79a7 apps/web/src/state/agentSessions.ts
 100644 08c3e3a9640759b4d99335a388edffca4cf9becb apps/web/src/state/assets.ts
@@ -27201,7 +27204,7 @@
 100644 49d8e02d79a8233be2caab0497492aba06394e0c docs/user/appearance.md
 100644 be4ad66ff3ab455417af885b8db5f50a3fff8e7f docs/user/background-service.md
 100644 194249d691022c256e12f4abc750c28bbd6bc9d0 docs/user/browser-import.md
-100644 35b425faf31d199e21cdaa2c3cdd5c18bce2d128 docs/user/composer.md
+100644 445cc2a96587b29b0e5c31dc24d8a8542ea513e4 docs/user/composer.md
 100644 6a6b1c8f284b33228bfd3c909a049844ee3a61a4 docs/user/cursor.md
 100644 1e1ef50034566e28ca7ced14927b1ce1289476aa docs/user/default-browser.md
 100644 42c0db4b27afa3234d6b598f72a9a3d47debbf56 docs/user/devices.md
@@ -27222,7 +27225,7 @@
 100644 0b1cd2f2c6da183973f43dcae83a62d19fe7caa1 docs/user/providers-antigravity.md
 100644 206d82ce323334cfb6bd04084e1ea67269dcb4be docs/user/providers-claude.md
 100644 bdc87902a63b2b4b7a3895efef2d911016d6981e docs/user/providers-codex.md
-100644 430f7a705a4995a583987e071016954f8ac1af94 docs/user/providers-fx.md
+100644 6467856c3886391e03eecef40136f3b5b48844c3 docs/user/providers-fx.md
 100644 2a58eed9c59c51f8aa327651c0bdb562378ad562 docs/user/providers-muse.md
 100644 9ecee2a0439c221c6ee63e7427ea96b2fb25323a docs/user/providers-opencode.md
 100644 123258f6ccb43a777110a4a63baa569516684375 docs/user/providers-pi.md
@@ -27565,7 +27568,7 @@
 100644 3943cd74dec331c8dd3d05a2afb660cabb97157c oxlint-plugin-t3code/utils.ts
 100644 efbe53b48066595dff4dff27d797ff0c4ab578af package.json
 100644 f2864a2db588b66b1dfd991f5c758475ebd52858 packages/client-runtime/README.md
-100644 03779b627eea095bc681ee757be6a4ae8926c648 packages/client-runtime/package.json
+100644 59ede9b0bf1240f1840449a8695b04ed4a79837b packages/client-runtime/package.json
 100644 05acbc1829e7834ceece549bffa1e155c1e91ceb packages/client-runtime/src/authorization/index.ts
 100644 d46878dedcd83e04e296d516a6a8344aaa6a2fc8 packages/client-runtime/src/authorization/layer.test.ts
 100644 d63110e37bb1f11fdefb47b85b9076ef6c42b0f2 packages/client-runtime/src/authorization/remote.test.ts
@@ -27743,6 +27746,8 @@
 100644 2b19d282dceb13041cf29007082803af3f5a2b90 packages/client-runtime/src/scheduledTaskWebhook.ts
 100644 57d4c4f49a8cb75aeb8dd869cb022fe1b85265d0 packages/client-runtime/src/secretRequest.test.ts
 100644 c6ec7ce95f2c98918297ffae07244292aa327e47 packages/client-runtime/src/secretRequest.ts
+100644 78477fe88e60a70bdb156d3e0e27d076160aa062 packages/client-runtime/src/skillUsage.test.ts
+100644 ef1647175b3fd882ef5001addb1ba48deb3f6e22 packages/client-runtime/src/skillUsage.ts
 100644 6954dd979cc8d31810088a13bc8ab7c60ff00328 packages/client-runtime/src/sourceControlClients.test.ts
 100644 c7db3db4afc56c623716b57ea2d30ed115e47729 packages/client-runtime/src/sourceControlClients.ts
 100644 f69a814df7d081e77927ab6848aa0a0ad7bb26db packages/client-runtime/src/state/archivedThreads.test.ts

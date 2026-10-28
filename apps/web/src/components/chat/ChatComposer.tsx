@@ -344,6 +344,7 @@ export interface ChatComposerHandle {
     selectedProvider: ProviderDriverKind;
     selectedModel: string;
     selectedProviderModels: ReadonlyArray<ServerProvider["models"][number]>;
+    selectedProviderSkills: ServerProvider["skills"];
     interactionMode: ProviderInteractionMode;
     interactionModeEnabled: boolean;
     shownPendingApprovalIds: ReadonlyArray<RuntimeRequestId>;
@@ -3185,6 +3186,7 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
         selectedProvider,
         selectedModel,
         selectedProviderModels,
+        selectedProviderSkills,
         interactionMode,
         interactionModeEnabled: planModeUiEnabled,
       }),
@@ -3250,6 +3252,7 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
       selectedPromptEffort,
       selectedProvider,
       selectedProviderModels,
+      selectedProviderSkills,
       interactionMode,
       planModeUiEnabled,
       compactThreadContextStable,

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { ServerProviderSkill } from "@t3tools/contracts";
 
+import type { SkillUsage } from "@t3tools/client-runtime/skillUsage";
+
 import { searchProviderSkills } from "./providerSkillSearch";
 
 function makeSkill(input: Partial<ServerProviderSkill> & Pick<ServerProviderSkill, "name">) {
@@ -43,5 +45,50 @@ describe("searchProviderSkills", () => {
       "/Users/matt/.codex/skills/branch-audit/SKILL.md",
       "/tmp/browser/SKILL.md",
     ]);
+  });
+
+  describe("usage", () => {
+    const usage = (entries: Record<string, number>): SkillUsage =>
+      Object.fromEntries(
+        Object.entries(entries).map(([name, count]) => [name, { count, lastUsedAt: count }]),
+      );
+
+    it("lists used skills first when the query is empty", () => {
+      const skills = [
+        makeSkill({ name: "alpha" }),
+        makeSkill({ name: "beta" }),
+        makeSkill({ name: "gamma" }),
+      ];
+
+      expect(
+        searchProviderSkills(skills, "", undefined, usage({ gamma: 5, beta: 1 })).map(
+          (skill) => skill.name,
+        ),
+      ).toEqual(["gamma", "beta", "alpha"]);
+    });
+
+    it("breaks ties between equal scores by usage", () => {
+      const skills = [
+        makeSkill({ name: "review-a" }),
+        makeSkill({ name: "review-b" }),
+        makeSkill({ name: "review-c" }),
+      ];
+
+      expect(
+        searchProviderSkills(skills, "review", undefined, usage({ "review-c": 2 })).map(
+          (skill) => skill.name,
+        ),
+      ).toEqual(["review-c", "review-a", "review-b"]);
+    });
+
+    it("keeps a better match ahead of a heavily used skill", () => {
+      const skills = [makeSkill({ name: "ship-review" }), makeSkill({ name: "review" })];
+
+      expect(
+        searchProviderSkills(skills, "review", undefined, usage({ "ship-review": 50 })).map(
+          (skill) => skill.name,
+        ),
+      ).toEqual(["review", "ship-review"]);
+    });
   });
 });

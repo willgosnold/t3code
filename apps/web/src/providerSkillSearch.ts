@@ -5,6 +5,12 @@ import {
   isProviderSkillUserInvocable,
 } from "@t3tools/client-runtime/providerSkills";
 import {
+  compareBySkillUsage,
+  EMPTY_SKILL_USAGE,
+  promoteUsedSkills,
+  type SkillUsage,
+} from "@t3tools/client-runtime/skillUsage";
+import {
   insertRankedSearchResult,
   normalizeSearchQuery,
   scoreQueryMatch,
@@ -73,12 +79,13 @@ export function searchProviderSkills(
   skills: ReadonlyArray<ServerProviderSkill>,
   query: string,
   limit = Number.POSITIVE_INFINITY,
+  usage: SkillUsage = EMPTY_SKILL_USAGE,
 ): ServerProviderSkill[] {
   const enabledSkills = dedupeProviderSkillsByName(skills.filter(isProviderSkillUserInvocable));
   const normalizedQuery = normalizeSearchQuery(query, { trimLeadingPattern: /^\p{Sc}+/u });
 
   if (!normalizedQuery) {
-    return enabledSkills;
+    return promoteUsedSkills(enabledSkills, (skill) => skill.name, usage);
   }
 
   const ranked: Array<{
@@ -100,9 +107,13 @@ export function searchProviderSkills(
         score,
         tieBreaker: `${formatProviderSkillDisplayName(skill).toLowerCase()}\u0000${skill.name}`,
       },
-      limit,
+      Number.POSITIVE_INFINITY,
     );
   }
 
-  return ranked.map((entry) => entry.item);
+  // Array.sort is stable, so usage ties keep the alphabetical tieBreaker order.
+  return ranked
+    .sort((a, b) => a.score - b.score || compareBySkillUsage(usage, a.item.name, b.item.name))
+    .slice(0, limit)
+    .map((entry) => entry.item);
 }

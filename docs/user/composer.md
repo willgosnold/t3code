@@ -231,6 +231,11 @@ provider. On mobile, both are also available before starting a thread on
 The slash menu also includes skills unless you turn off **Settings → Chat →
 Show skills in slash menu**, under Advanced. Only skills enabled for the provider are listed.
 
+Skills you send most often come first in both menus, and the more recent one wins a tie. Counts
+stay on each device, so your phone and your desktop rank skills separately. When you type a
+search, the best match still comes first and use only decides between equally good matches,
+except in the mobile `/` menu, where matching skills you use come first.
+
 After you add or change skills, plugins, or MCP servers, use **Restart agent
 session** in the command palette on web and desktop. The conversation continues,
 and your next message starts the agent again with the new setup.

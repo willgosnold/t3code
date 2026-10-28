@@ -57,6 +57,7 @@ import {
   parseStandaloneComposerSlashCommand,
 } from "../../composer-logic";
 import { resolvePlanFollowUpSubmission } from "../../proposedPlan";
+import { recordSkillUsage } from "../../skillUsageStore";
 import { type ChatMessage } from "../../types";
 import { stackedThreadToast, toastManager } from "../ui/toast";
 import { newMessageId, newThreadId } from "~/lib/utils";
@@ -688,6 +689,9 @@ export function useComposerSend(input: ComposerSendInput) {
         }),
         interactionMode: followUp.interactionMode,
       });
+      if (followUpSent) {
+        recordSkillUsage(promptForSend, sendCtx.selectedProviderSkills);
+      }
       if (!followUpSent) {
         promptRef.current = followUpPromptSnapshot;
         composerTerminalContextsRef.current = [...followUpTerminalContexts];
@@ -1094,7 +1098,7 @@ export function useComposerSend(input: ComposerSendInput) {
       usesAttachmentUploads: turnUsesAttachmentUploads,
     });
     if (multipleModelSelections !== null) {
-      await sendToMultipleModels({
+      const allSent = await sendToMultipleModels({
         threadId: threadIdForSend,
         project: activeProject,
         branch: activeThreadBranch!,
@@ -1108,6 +1112,7 @@ export function useComposerSend(input: ComposerSendInput) {
         buildOutgoingMessageContext,
         isCurrentSend: () => composerSendGenerationRef.current === sendGeneration,
       });
+      if (allSent) recordSkillUsage(promptForSend, sendCtx.selectedProviderSkills);
       return;
     }
     const optimisticAttachments = optimisticMessageAttachments(composerAttachmentsSnapshot);
@@ -1320,6 +1325,7 @@ export function useComposerSend(input: ComposerSendInput) {
         failure = startResult;
       } else {
         turnStartSucceeded = true;
+        recordSkillUsage(promptForSend, sendCtx.selectedProviderSkills);
         setKeepFullHistory(routeThreadKey, false);
         clearUsageLimitsFor(routeThreadKey);
         if (turnUsesAttachmentUploads) {

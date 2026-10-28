@@ -22,6 +22,7 @@ import {
   getProviderSlashCommandsForSlashMenu,
 } from "@t3tools/client-runtime/providerSkills";
 import { searchProviderSkills } from "../../providerSkillSearch";
+import { useSkillUsage } from "../../skillUsageStore";
 import { useThreadShells } from "~/state/entities";
 import {
   pullRequestEnvironment,
@@ -77,6 +78,7 @@ export function useComposerMenuItems({
 }) {
   // Thread mentions rank by recency as of when the composer mounted.
   const [now] = useState(() => Date.now());
+  const skillUsage = useSkillUsage();
   const composerTriggerKind = composerTrigger?.kind ?? null;
   const pathTriggerQuery = composerTrigger?.kind === "path" ? composerTrigger.query : "";
   const pullRequestTriggerQuery =
@@ -242,10 +244,15 @@ export function useComposerMenuItems({
         [...builtInSlashCommandItems, ...visibleProviderSlashCommandItems, ...skillItems],
         composerTrigger.rangeStart === 0,
       );
-      return searchSlashCommandItems(slashCommandItems, query);
+      return searchSlashCommandItems(slashCommandItems, query, skillUsage);
     }
     if (composerTrigger.kind === "skill") {
-      return searchProviderSkills(selectedProviderSkills, composerTrigger.query).map((skill) => ({
+      return searchProviderSkills(
+        selectedProviderSkills,
+        composerTrigger.query,
+        Number.POSITIVE_INFINITY,
+        skillUsage,
+      ).map((skill) => ({
         id: `skill:${selectedProvider}:${skill.name}`,
         type: "skill" as const,
         provider: selectedProvider,

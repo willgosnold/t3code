@@ -1,4 +1,10 @@
 import {
+  compareBySkillUsage,
+  EMPTY_SKILL_USAGE,
+  promoteUsedSkills,
+  type SkillUsage,
+} from "@t3tools/client-runtime/skillUsage";
+import {
   insertRankedSearchResult,
   normalizeSearchQuery,
   scoreQueryMatch,
@@ -11,6 +17,8 @@ type SlashSearchItem = Extract<
   ComposerCommandItem,
   { type: "slash-command" | "provider-slash-command" | "skill" }
 >;
+
+const skillNameOf = (item: SlashSearchItem) => (item.type === "skill" ? item.skill.name : null);
 
 /** Providers expand slash commands only at the message start. */
 export function slashCommandItemsForPromptPosition(
@@ -71,10 +79,11 @@ function scoreSlashCommandItem(item: SlashSearchItem, query: string): number | n
 export function searchSlashCommandItems(
   items: ReadonlyArray<SlashSearchItem>,
   query: string,
+  usage: SkillUsage = EMPTY_SKILL_USAGE,
 ): SlashSearchItem[] {
   const normalizedQuery = normalizeSearchQuery(query, { trimLeadingPattern: /^\/+/ });
   if (!normalizedQuery) {
-    return [...items];
+    return promoteUsedSkills(items, skillNameOf, usage);
   }
 
   const ranked: Array<{
@@ -105,5 +114,11 @@ export function searchSlashCommandItems(
     );
   }
 
-  return ranked.map((entry) => entry.item);
+  // Array.sort is stable, so usage ties keep the alphabetical tieBreaker order.
+  return ranked
+    .sort(
+      (a, b) =>
+        a.score - b.score || compareBySkillUsage(usage, skillNameOf(a.item), skillNameOf(b.item)),
+    )
+    .map((entry) => entry.item);
 }
