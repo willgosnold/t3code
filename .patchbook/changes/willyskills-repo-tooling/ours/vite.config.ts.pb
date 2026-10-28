@@ -11,6 +11,7 @@ const TEST_EXCLUDE = [
   "**/.t3/**",
   // patchbook builds these from willyskills; they are another repo's output.
   "**/.agents/skills/**",
+  "**/.claude/skills/**",
   "**/node_modules/**",
   "**/dist/**",
   "**/dist-electron/**",
@@ -179,6 +180,7 @@ export default defineConfig({
       "apps/mobile/modules/t3-highlights/cpp/generated/**",
       "*.icon/**",
       ".agents/skills/**",
+      ".patchbook/**",
     ],
     sortPackageJson: {},
     overrides: [
@@ -208,6 +210,7 @@ export default defineConfig({
       "apps/mobile/ios/**",
       "apps/mobile/uniwind-types.d.ts",
       ".agents/skills/**",
+      ".claude/skills/**",
     ],
     plugins: ["eslint", "oxc", "react", "unicorn", "typescript"],
     jsPlugins: ["./oxlint-plugin-t3code/index.ts", "@shadcn/lint"],
