@@ -38,7 +38,7 @@ This repo has two upstreams. t3code follows upstream's stable releases (plain `v
 
 - `STABLE_TAG=$(git ls-remote --tags --refs https://github.com/pingdotgg/t3code.git 'v*' | sed -n 's#.*refs/tags/\(v[0-9]*\.[0-9]*\.[0-9]*\)$#\1#p' | sort -V | tail -n 1)`
 - `STABLE_COMMIT=$(git ls-remote https://github.com/pingdotgg/t3code.git "refs/tags/$STABLE_TAG" "refs/tags/$STABLE_TAG^{}" | tail -n 1 | cut -f1)`
-- `WILLYSKILLS_COMMIT=$(git ls-remote git@github.com:willgosnold/willyskills.git refs/heads/main | cut -f1)`
+- `WILLYSKILLS_COMMIT=$(git ls-remote https://github.com/willgosnold/willyskills.git refs/heads/main | cut -f1)`
 
 Compare `STABLE_COMMIT` with the t3code `commit` in `.patchbook/upstream.lock`, and `WILLYSKILLS_COMMIT` with the willyskills `commit`. An upstream whose values differ has moved.
 

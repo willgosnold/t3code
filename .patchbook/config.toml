@@ -8,7 +8,7 @@ mount = ""
 
 [[upstream]]
 name = "willyskills"
-remote = "git@github.com:willgosnold/willyskills.git"
+remote = "https://github.com/willgosnold/willyskills.git"
 path = "skills"
 branch = "main"
 mount = ".agents/skills"
