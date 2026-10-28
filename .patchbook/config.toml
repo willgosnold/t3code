@@ -5,3 +5,10 @@ name = "t3code"
 remote = "https://github.com/pingdotgg/t3code.git"
 branch = "main"
 mount = ""
+
+[[upstream]]
+name = "willyskills"
+remote = "git@github.com:willgosnold/willyskills.git"
+path = "skills"
+branch = "main"
+mount = ".agents/skills"
