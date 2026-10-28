@@ -9,6 +9,8 @@ const DOM_TEST_ENVIRONMENT_ALLOWLIST: Array<string> = [];
 const TEST_EXCLUDE = [
   "**/.repos/**",
   "**/.t3/**",
+  // patchbook builds these from willyskills; they are another repo's output.
+  "**/.agents/skills/**",
   "**/node_modules/**",
   "**/dist/**",
   "**/dist-electron/**",
@@ -176,6 +178,7 @@ export default defineConfig({
       "apps/mobile/modules/t3-highlights/Vendor/**",
       "apps/mobile/modules/t3-highlights/cpp/generated/**",
       "*.icon/**",
+      ".agents/skills/**",
     ],
     sortPackageJson: {},
     overrides: [
@@ -204,6 +207,7 @@ export default defineConfig({
       "apps/mobile/android/**",
       "apps/mobile/ios/**",
       "apps/mobile/uniwind-types.d.ts",
+      ".agents/skills/**",
     ],
     plugins: ["eslint", "oxc", "react", "unicorn", "typescript"],
     jsPlugins: ["./oxlint-plugin-t3code/index.ts", "@shadcn/lint"],
